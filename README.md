@@ -11,3 +11,4 @@ Projekt stworzony w ramach nauki programowania i zabawy z logiką gry.
 - Wyświetlanie dostępnych liter alfabetu
 - Informacje zwrotne o poprawnych i błędnych próbach
 
+Wisielec-pygame - gra wzbogacona o interfejs graficzny (pygame)
