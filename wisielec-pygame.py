@@ -14,7 +14,9 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (200, 0, 0)
 GREEN = (0, 200, 0)
+GRAY = (180, 180, 180)
 FONT = pygame.font.SysFont("arial", 40)
+SMALL_FONT = pygame.font.SysFont("arial", 25)
 
 # --- Lista słów ---
 slownik = []
@@ -22,7 +24,8 @@ with open("C:\\Users\\ASUS ZENBOOK\\Desktop\\repo_github\\Wisielec\\slownik.txt"
     for line in plik:
         clear = line.strip()
         if clear not in slownik:
-            slownik.append(clear)
+            upper_clear = clear.upper()
+            slownik.append(upper_clear)
 
 def losowanie_slowa():
     return random.choice(slownik)
@@ -64,6 +67,25 @@ def rysuj_wisielca(zycia):
     if zycia <= 0:
         pygame.draw.line(screen, BLACK, (400, 250), (440, 300), 3)
 
+# --- Przyciski liter ---
+def stworz_alfabet():
+    litery = list("ABCDEFGHIJKLMNOPRSTUWYZ")
+    przyciski = []
+    start_x = 50
+    start_y = 400
+    odstep = 45
+    wiersz = 0
+    kolumna = 0
+
+    for litera in litery:
+        rect = pygame.Rect(start_x + kolumna * odstep, start_y + wiersz * odstep, 40, 40)
+        przyciski.append([litera, rect, True])
+        kolumna += 1
+        if kolumna > 12:
+            kolumna = 0
+            wiersz += 1
+    return przyciski
+
 # --- Szyfrowanie słowa ---
 def szyfrowanie(losowe_slowo):
     return ['_'] * len(losowe_slowo)
@@ -79,23 +101,27 @@ def gra():
     slowo = losowanie_slowa()
     zaszyfrowane = szyfrowanie(slowo)
     zycia = 6
-    alfabet = list("abcdefghijklmnoprstuwyz")
+    przyciski = stworz_alfabet()
 
     running = True
     while running:
         screen.fill(WHITE)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            elif event.type == pygame.KEYDOWN:
-                litera = event.unicode.lower()
-                if litera in alfabet:
-                    if litera in slowo:
-                        odszyfrowanie_litery(slowo, zaszyfrowane, litera)
-                    else:
-                        zycia -= 1
-                    alfabet.remove(litera)
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                position = pygame.mouse.get_pos()
+                for btn in przyciski:
+                    litera, rect, aktywna = btn
+                    if aktywna and rect.collidepoint(position):
+                        btn[2] = False
+                        if litera in slowo:
+                            odszyfrowanie_litery(slowo, zaszyfrowane, litera)
+                        else:
+                            zycia -= 1
+    
 
         # Rysowanie szubienicy
         rysuj_wisielca(zycia)
@@ -106,9 +132,14 @@ def gra():
         screen.blit(render_slowo, (150, 500))
 
         # Rysowanie dostępnych liter
-        alfabet_text = " ".join(alfabet)
-        render_alfabet = FONT.render(alfabet_text, True, BLACK)
-        screen.blit(render_alfabet, (50, 420))
+        for litera, rect, aktywna in przyciski:
+            if aktywna:
+                pygame.draw.rect(screen, BLACK, rect, 2)
+                litera_render = SMALL_FONT.render(litera, True, BLACK)
+            else:
+                pygame.draw.rect(screen,GRAY,rect)
+                litera_render = SMALL_FONT.render(litera, True, WHITE)
+            screen.blit(litera_render, (rect.x + 10, rect.y + 5))
 
         # Sprawdzenie warunków gry
         if zycia <= 0:
