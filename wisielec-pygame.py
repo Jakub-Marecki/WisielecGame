@@ -9,7 +9,7 @@ WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Wisielec")
 clock = pygame.time.Clock()
-
+BACKGROUND = pygame.image.load("C:\\Users\\ASUS ZENBOOK\\Desktop\\repo_github\\Wisielec\\background.png")
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (200, 0, 0)
@@ -32,46 +32,45 @@ def losowanie_slowa():
 
 # --- Rysowanie szubienicy ---
 def rysuj_wisielca(zycia):
-    pygame.draw.line(screen, BLACK, (150, 350), (350, 350), 5)  # podstawa
-    pygame.draw.line(screen, BLACK, (250, 350), (250, 50), 5)   # pion
-    pygame.draw.line(screen, BLACK, (250, 50), (400, 50), 5)    # poziom
-    pygame.draw.line(screen, BLACK, (400, 50), (400, 100), 5)   # sznur
-
     # Głowa
     if zycia <= 5:
-        pygame.draw.circle(screen, BLACK, (400, 130), 30, 3)
+        pygame.draw.circle(screen, BLACK, (540, 195), 20, 4)
+
         # Twarz
         if zycia > 0:
-            pygame.draw.circle(screen, BLACK, (390, 125), 3)
-            pygame.draw.circle(screen, BLACK, (410, 125), 3)
-            pygame.draw.arc(screen, BLACK, (385, 135, 30, 20), 0, 3.14, 2)  # smutna buźka
+            pygame.draw.circle(screen, BLACK, (532, 190), 2)  # lewe oko
+            pygame.draw.circle(screen, BLACK, (548, 190), 2)  # prawe oko
+            pygame.draw.arc(screen, BLACK, (528, 198, 24, 15), 0, 3.14, 2)  # smutna buźka
         else:
             # Oczy X
-            pygame.draw.line(screen, BLACK, (387, 122), (393, 128), 2)
-            pygame.draw.line(screen, BLACK, (393, 122), (387, 128), 2)
-            pygame.draw.line(screen, BLACK, (407, 122), (413, 128), 2)
-            pygame.draw.line(screen, BLACK, (413, 122), (407, 128), 2)
-            pygame.draw.arc(screen, BLACK, (385, 135, 30, 20), 0, 3.14, 2)  # smutne usta
+            pygame.draw.line(screen, BLACK, (530, 188), (535, 193), 2)
+            pygame.draw.line(screen, BLACK, (535, 188), (530, 193), 2)
+            pygame.draw.line(screen, BLACK, (545, 188), (550, 193), 2)
+            pygame.draw.line(screen, BLACK, (550, 188), (545, 193), 2)
+            pygame.draw.arc(screen, BLACK, (528, 198, 24, 15), 0, 3.14, 2)  # smutne usta
 
     # Tułów
     if zycia <= 4:
-        pygame.draw.line(screen, BLACK, (400, 160), (400, 250), 3)
+        pygame.draw.line(screen, BLACK, (540, 215), (540, 285), 4)
+
     # Ręce
     if zycia <= 3:
-        pygame.draw.line(screen, BLACK, (400, 180), (360, 220), 3)
+        pygame.draw.line(screen, BLACK, (540, 225), (500, 255), 4)  # lewa ręka
     if zycia <= 2:
-        pygame.draw.line(screen, BLACK, (400, 180), (440, 220), 3)
+        pygame.draw.line(screen, BLACK, (540, 225), (580, 255), 4)  # prawa ręka
+
     # Nogi
     if zycia <= 1:
-        pygame.draw.line(screen, BLACK, (400, 250), (360, 300), 3)
+        pygame.draw.line(screen, BLACK, (540, 285), (510, 335), 4)  # lewa noga
     if zycia <= 0:
-        pygame.draw.line(screen, BLACK, (400, 250), (440, 300), 3)
+        pygame.draw.line(screen, BLACK, (540, 285), (570, 335), 4)  # prawa noga
+
 
 # --- Przyciski liter ---
 def stworz_alfabet():
-    litery = list("ABCDEFGHIJKLMNOPRSTUWYZ")
+    litery = list("ABCDEFGHIJKLMNOPQRSTUWYZ")
     przyciski = []
-    start_x = 50
+    start_x = 130
     start_y = 400
     odstep = 45
     wiersz = 0
@@ -81,7 +80,7 @@ def stworz_alfabet():
         rect = pygame.Rect(start_x + kolumna * odstep, start_y + wiersz * odstep, 40, 40)
         przyciski.append([litera, rect, True])
         kolumna += 1
-        if kolumna > 12:
+        if kolumna > 11:
             kolumna = 0
             wiersz += 1
     return przyciski
@@ -115,8 +114,8 @@ def gra():
     running = True
     while running:
         screen.fill(WHITE)
-
-        play_again_btn = draw_button("Restart", 480, 20, 140, 50, GRAY)
+        screen.blit(BACKGROUND, (0,0))
+        play_again_btn = draw_button("Restart", 20, 20, 140, 50, GRAY)
         quit_btn = draw_button("Exit", 640, 20, 140, 50, RED)
 
         # Rysowanie szubienicy
@@ -125,11 +124,12 @@ def gra():
         # Rysowanie zaszyfrowanego słowa
         tekst = " ".join(zaszyfrowane)
         render_slowo = FONT.render(tekst, True, BLACK)
-        screen.blit(render_slowo, (500, 200))
+        screen.blit(render_slowo, (100, 200))
 
         # Rysowanie liter
         for litera, rect, aktywna in przyciski:
             if aktywna:
+                pygame.draw.rect(screen, WHITE, rect)
                 pygame.draw.rect(screen, BLACK, rect, 2)
                 litera_render = SMALL_FONT.render(litera, True, BLACK)
             else:
