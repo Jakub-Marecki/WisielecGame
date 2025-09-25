@@ -10,13 +10,20 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Wisielec")
 clock = pygame.time.Clock()
 BACKGROUND = pygame.image.load("C:\\Users\\ASUS ZENBOOK\\Desktop\\repo_github\\Wisielec\\background.png")
+
+# --- Kolory ---
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (200, 0, 0)
 GREEN = (0, 200, 0)
 GRAY = (180, 180, 180)
-FONT = pygame.font.SysFont("arial", 40)
-SMALL_FONT = pygame.font.SysFont("arial", 25)
+DARK_GRAY = (100, 100, 100)
+LIGHT_GRAY = (220, 220, 220)
+SHADOW = (50, 50, 50, 100)
+
+# --- Czcionki ---
+FONT = pygame.font.SysFont("arial", 40, bold=True)
+SMALL_FONT = pygame.font.SysFont("arial", 25, bold=True)
 
 # --- Lista słów ---
 slownik = []
@@ -70,20 +77,32 @@ def rysuj_wisielca(zycia):
 def stworz_alfabet():
     litery = list("ABCDEFGHIJKLMNOPQRSTUWYZ")
     przyciski = []
-    start_x = 130
+    start_x = 100
     start_y = 400
-    odstep = 45
+    odstep = 50
     wiersz = 0
     kolumna = 0
 
     for litera in litery:
-        rect = pygame.Rect(start_x + kolumna * odstep, start_y + wiersz * odstep, 40, 40)
+        rect = pygame.Rect(start_x + kolumna * odstep, start_y + wiersz * odstep, 45, 45)
         przyciski.append([litera, rect, True])
         kolumna += 1
         if kolumna > 11:
             kolumna = 0
             wiersz += 1
     return przyciski
+
+# --- Funkcja rysowania przycisku ---
+def draw_button(text, x, y, w, h, color, hover_color=None):
+    rect = pygame.Rect(x, y, w, h)
+    mouse_pos = pygame.mouse.get_pos()
+    current_color = hover_color if rect.collidepoint(mouse_pos) and hover_color else color
+    pygame.draw.rect(screen, current_color, rect, border_radius=10)
+    pygame.draw.rect(screen, DARK_GRAY, rect, 2, border_radius=10)
+    label = FONT.render(text, True, BLACK)
+    label_rect = label.get_rect(center=rect.center)
+    screen.blit(label, label_rect)
+    return rect
 
 # --- Szyfrowanie słowa ---
 def szyfrowanie(losowe_slowo):
@@ -94,15 +113,6 @@ def odszyfrowanie_litery(losowe_slowo, zaszyfrowane, litera):
     for i in range(len(losowe_slowo)):
         if losowe_slowo[i] == litera:
             zaszyfrowane[i] = litera
-            
-# --- Przyciski Obłusga gry ----
-def draw_button(text, x, y, w, h, color):
-    rect = pygame.Rect(x, y, w, h)
-    pygame.draw.rect(screen, color, rect)
-    label = FONT.render(text, True, BLACK)
-    label_rect = label.get_rect(center=rect.center)
-    screen.blit(label, label_rect)
-    return rect
 
 # --- Główna pętla gry ---
 def gra():
@@ -113,37 +123,49 @@ def gra():
 
     running = True
     while running:
-        screen.fill(WHITE)
-        screen.blit(BACKGROUND, (0,0))
-        play_again_btn = draw_button("Restart", 20, 20, 140, 50, GRAY)
-        quit_btn = draw_button("Exit", 640, 20, 140, 50, RED)
+        screen.blit(BACKGROUND, (0, 0))
+
+        play_again_btn = draw_button("Restart", 20, 20, 140, 50, LIGHT_GRAY, WHITE)
+        quit_btn = draw_button("Exit", 640, 20, 140, 50, RED, (255, 100, 100))
 
         # Rysowanie szubienicy
         rysuj_wisielca(zycia)
 
-        # Rysowanie zaszyfrowanego słowa
+        # Rysowanie zgadywanego słowa
         tekst = " ".join(zaszyfrowane)
         render_slowo = FONT.render(tekst, True, BLACK)
-        screen.blit(render_slowo, (100, 200))
+        rect_slowo = render_slowo.get_rect(topleft=(50, 220))
+        tlo = pygame.Surface(rect_slowo.inflate(20, 10).size, pygame.SRCALPHA)
+        tlo.fill((255, 255, 255, 180)) 
+        screen.blit(tlo, rect_slowo.inflate(20, 10))
+        screen.blit(render_slowo, rect_slowo)
 
         # Rysowanie liter
         for litera, rect, aktywna in przyciski:
             if aktywna:
-                pygame.draw.rect(screen, WHITE, rect)
-                pygame.draw.rect(screen, BLACK, rect, 2)
+                pygame.draw.ellipse(screen, WHITE, rect)
+                pygame.draw.ellipse(screen, BLACK, rect, 2)
                 litera_render = SMALL_FONT.render(litera, True, BLACK)
             else:
-                pygame.draw.rect(screen, GRAY, rect)
+                pygame.draw.ellipse(screen, GRAY, rect)
                 litera_render = SMALL_FONT.render(litera, True, WHITE)
-            screen.blit(litera_render, (rect.x + 10, rect.y + 5))
+            screen.blit(litera_render, litera_render.get_rect(center=rect.center))
 
         # Sprawdzenie warunków gry
         if zycia <= 0:
             msg = FONT.render(f"Przegrałeś! Słowo to: {slowo}", True, RED)
-            screen.blit(msg, (400 - msg.get_width() // 2, 520))
+            rect_msg = msg.get_rect(center=(WIDTH // 2, 540))
+            pygame.draw.rect(screen, WHITE, rect_msg.inflate(40, 20), border_radius=15)
+            pygame.draw.rect(screen, RED, rect_msg.inflate(40, 20), 3, border_radius=15)
+            screen.blit(msg, rect_msg)
+
         elif "_" not in zaszyfrowane:
             msg = FONT.render("Brawo! Wygrałeś!", True, GREEN)
-            screen.blit(msg, (400 - msg.get_width() // 2, 520))
+            rect_msg = msg.get_rect(center=(WIDTH // 2, 540)) 
+            pygame.draw.rect(screen, WHITE, rect_msg.inflate(40, 20), border_radius=15)
+            pygame.draw.rect(screen, GREEN, rect_msg.inflate(40, 20), 3, border_radius=15)
+            screen.blit(msg, rect_msg)
+
 
         pygame.display.flip()
 
@@ -154,7 +176,7 @@ def gra():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 position = pygame.mouse.get_pos()
                 if play_again_btn.collidepoint(position):
-                    return gra()  # restart gry
+                    return gra()
                 if quit_btn.collidepoint(position):
                     pygame.quit()
                     sys.exit()
