@@ -101,4 +101,3 @@ Dzięki temu kod jest łatwiejszy do rozbudowy, np. o:
 ![Widok gry 1](screenshot1.png)
 ![Widok gry 2](screenshot2.png)
 ![Widok gry 3](screenshot3.png)
-```
