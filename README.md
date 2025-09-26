@@ -1,6 +1,8 @@
-# Wisielec (Hangman)
+# Hangman Game (Wisielec)
 
 Gra **Wisielec** napisana w Pythonie z wykorzystaniem biblioteki **Pygame**.
+Projekt został zrefaktoryzowany do **wersji obiektowej**, co poprawia czytelność, modularność i ułatwia dalszy rozwój gry.
+
 Celem gry jest odgadnięcie ukrytego słowa poprzez wybieranie liter alfabetu.
 Każdy błąd powoduje dorysowanie kolejnego elementu wisielca. Gra kończy się, gdy odgadniesz całe słowo lub gdy zabraknie żyć.
 
@@ -14,7 +16,12 @@ Każdy błąd powoduje dorysowanie kolejnego elementu wisielca. Gra kończy się
 * Informacja o wygranej i przegranej.
 * Przyciski **Restart** i **Exit** w trakcie gry.
 * Proste tło (`background.png`).
-* Dodatkowo dostępna wersja gry działająca w konsoli (plik `wisielec.py`).
+* Przejrzysta architektura obiektowa:
+
+  * `Hangman` – główna klasa zarządzająca logiką gry.
+  * `Button` – klasa dla przycisków interfejsu.
+  * `LetterButton` – klasa dla liter alfabetu.
+* Dodatkowo dostępna wersja gry działająca w konsoli (`wisielec.py`).
 
 ---
 
@@ -33,10 +40,26 @@ pip install pygame
 
 ## Pliki projektu
 
-* `wisielec-pygame.py` – główny plik gry w trybie graficznym.
+* `wisielec-pygame.py` – główny plik gry w trybie graficznym (wersja obiektowa).
 * `wisielec.py` – wersja gry działająca w konsoli.
 * `slownik.txt` – plik tekstowy z listą słów (po jednym w każdej linii).
 * `background.png` – obrazek tła wyświetlany w grze.
+
+---
+
+## Struktura kodu
+
+Projekt został podzielony na klasy w celu lepszej organizacji kodu:
+
+* **Hangman** – zarządza logiką gry (losowanie słowa, sprawdzanie stanu gry, rysowanie interfejsu).
+* **Button** – reprezentuje przycisk w grze (np. Restart, Exit).
+* **LetterButton** – rozszerza `Button`, służy do obsługi liter alfabetu.
+
+Dzięki temu kod jest łatwiejszy do rozbudowy, np. o:
+
+* różne poziomy trudności,
+* ranking graczy,
+* obsługę innych języków.
 
 ---
 
@@ -46,7 +69,7 @@ pip install pygame
 2. Aby uruchomić grę graficzną:
 
    ```bash
-   python main.py
+   python wisielec-pygame.py
    ```
 3. Aby uruchomić grę w konsoli:
 
@@ -62,6 +85,13 @@ pip install pygame
 * Kliknij **Restart**, aby zacząć od nowa (wersja graficzna).
 * Kliknij **Exit**, aby wyjść z gry (wersja graficzna).
 * W wersji konsolowej wpisuj litery z klawiatury.
+
+---
+
+## Przyszłe usprawnienia
+
+* Dodanie **poziomów trudności** (łatwy, średni, trudny).
+* Możliwość wyboru **języka słownika**.
 
 ---
 
