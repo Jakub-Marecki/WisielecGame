@@ -9,7 +9,12 @@ WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Wisielec")
 clock = pygame.time.Clock()
-BACKGROUND = pygame.image.load("C:\\Users\\ASUS ZENBOOK\\Desktop\\repo_github\\Wisielec\\background.png")
+
+# --- Ścieżki ---
+DICT_PATH = "C:\\Users\\ASUS ZENBOOK\\Desktop\\repo_github\\Wisielec\\slownik.txt"
+BACKGROUND_PATH = "C:\\Users\\ASUS ZENBOOK\\Desktop\\repo_github\\Wisielec\\background.png"
+
+BACKGROUND = pygame.image.load(BACKGROUND_PATH)
 
 # --- Kolory ---
 WHITE = (255, 255, 255)
@@ -19,177 +24,201 @@ GREEN = (0, 200, 0)
 GRAY = (180, 180, 180)
 DARK_GRAY = (100, 100, 100)
 LIGHT_GRAY = (220, 220, 220)
-SHADOW = (50, 50, 50, 100)
 
 # --- Czcionki ---
 FONT = pygame.font.SysFont("arial", 40, bold=True)
 SMALL_FONT = pygame.font.SysFont("arial", 25, bold=True)
 
-# --- Lista słów ---
-slownik = []
-with open("C:\\Users\\ASUS ZENBOOK\\Desktop\\repo_github\\Wisielec\\slownik.txt", 'r') as plik:
-    for line in plik:
-        clear = line.strip()
-        if clear not in slownik:
-            upper_clear = clear.upper()
-            slownik.append(upper_clear)
 
-def losowanie_slowa():
+# --- Klasa ogólnego przycisku UI ---
+class UIbutton:
+    def __init__(self, text, x, y, w, h, color, hover_color, action=None):
+        self.text = text
+        self.rect = pygame.Rect(x, y, w, h)
+        self.color = color
+        self.hover_color = hover_color
+        self.action = action
+
+    def draw(self, screen):
+        mouse_pos = pygame.mouse.get_pos()
+        current_color = self.hover_color if self.rect.collidepoint(mouse_pos) else self.color
+        pygame.draw.rect(screen, current_color, self.rect, border_radius=10)
+        pygame.draw.rect(screen, DARK_GRAY, self.rect, 2, border_radius=10)
+        label = FONT.render(self.text, True, BLACK)
+        screen.blit(label, label.get_rect(center=self.rect.center))
+
+    def check_click(self, pos):
+        if self.rect.collidepoint(pos) and self.action:
+            self.action()
+
+
+# --- Klasa przycisku litery ---
+class LetterButton:
+    def __init__(self, litera, rect):
+        self.litera = litera
+        self.rect = rect
+        self.aktywna = True
+
+    def draw(self, screen):
+        if self.aktywna:
+            pygame.draw.ellipse(screen, WHITE, self.rect)
+            pygame.draw.ellipse(screen, BLACK, self.rect, 2)
+            render = SMALL_FONT.render(self.litera, True, BLACK)
+        else:
+            pygame.draw.ellipse(screen, GRAY, self.rect)
+            render = SMALL_FONT.render(self.litera, True, WHITE)
+        screen.blit(render, render.get_rect(center=self.rect.center))
+
+    def check_click(self, pos):
+        return self.aktywna and self.rect.collidepoint(pos)
+
+
+# --- Funkcje pomocnicze ---
+def load_words():
+    slownik = []
+    with open(DICT_PATH, 'r') as plik:
+        for line in plik:
+            word = line.strip().upper()
+            if word not in slownik:
+                slownik.append(word)
+    return slownik
+
+
+def losowanie_slowa(slownik):
     return random.choice(slownik)
 
-# --- Rysowanie szubienicy ---
+
 def rysuj_wisielca(zycia):
-    # Głowa
     if zycia <= 5:
         pygame.draw.circle(screen, BLACK, (540, 195), 20, 4)
-
-        # Twarz
         if zycia > 0:
-            pygame.draw.circle(screen, BLACK, (532, 190), 2)  # lewe oko
-            pygame.draw.circle(screen, BLACK, (548, 190), 2)  # prawe oko
-            pygame.draw.arc(screen, BLACK, (528, 198, 24, 15), 0, 3.14, 2)  # smutna buźka
+            pygame.draw.circle(screen, BLACK, (532, 190), 2)
+            pygame.draw.circle(screen, BLACK, (548, 190), 2)
+            pygame.draw.arc(screen, BLACK, (528, 198, 24, 15), 0, 3.14, 2)
         else:
-            # Oczy X
             pygame.draw.line(screen, BLACK, (530, 188), (535, 193), 2)
             pygame.draw.line(screen, BLACK, (535, 188), (530, 193), 2)
             pygame.draw.line(screen, BLACK, (545, 188), (550, 193), 2)
             pygame.draw.line(screen, BLACK, (550, 188), (545, 193), 2)
-            pygame.draw.arc(screen, BLACK, (528, 198, 24, 15), 0, 3.14, 2)  # smutne usta
+            pygame.draw.arc(screen, BLACK, (528, 198, 24, 15), 0, 3.14, 2)
 
-    # Tułów
     if zycia <= 4:
         pygame.draw.line(screen, BLACK, (540, 215), (540, 285), 4)
-
-    # Ręce
     if zycia <= 3:
-        pygame.draw.line(screen, BLACK, (540, 225), (500, 255), 4)  # lewa ręka
+        pygame.draw.line(screen, BLACK, (540, 225), (500, 255), 4)
     if zycia <= 2:
-        pygame.draw.line(screen, BLACK, (540, 225), (580, 255), 4)  # prawa ręka
-
-    # Nogi
+        pygame.draw.line(screen, BLACK, (540, 225), (580, 255), 4)
     if zycia <= 1:
-        pygame.draw.line(screen, BLACK, (540, 285), (510, 335), 4)  # lewa noga
+        pygame.draw.line(screen, BLACK, (540, 285), (510, 335), 4)
     if zycia <= 0:
-        pygame.draw.line(screen, BLACK, (540, 285), (570, 335), 4)  # prawa noga
+        pygame.draw.line(screen, BLACK, (540, 285), (570, 335), 4)
 
 
-# --- Przyciski liter ---
-def stworz_alfabet():
-    litery = list("ABCDEFGHIJKLMNOPQRSTUWYZ")
-    przyciski = []
-    start_x = 100
-    start_y = 400
-    odstep = 50
-    wiersz = 0
-    kolumna = 0
+def sprawdz_wynik(zycia, slowo, zaszyfrowane):
+    if zycia <= 0:
+        return f"Przegrałeś! Słowo to: {slowo}", RED
+    elif "_" not in zaszyfrowane:
+        return "Brawo! Wygrałeś!", GREEN
+    return None, None
 
-    for litera in litery:
-        rect = pygame.Rect(start_x + kolumna * odstep, start_y + wiersz * odstep, 45, 45)
-        przyciski.append([litera, rect, True])
-        kolumna += 1
-        if kolumna > 11:
-            kolumna = 0
-            wiersz += 1
-    return przyciski
 
-# --- Funkcja rysowania przycisku ---
-def draw_button(text, x, y, w, h, color, hover_color=None):
-    rect = pygame.Rect(x, y, w, h)
-    mouse_pos = pygame.mouse.get_pos()
-    current_color = hover_color if rect.collidepoint(mouse_pos) and hover_color else color
-    pygame.draw.rect(screen, current_color, rect, border_radius=10)
-    pygame.draw.rect(screen, DARK_GRAY, rect, 2, border_radius=10)
-    label = FONT.render(text, True, BLACK)
-    label_rect = label.get_rect(center=rect.center)
-    screen.blit(label, label_rect)
-    return rect
+# --- Klasa gry ---
+class HangmanGame:
+    def __init__(self, slownik):
+        self.slownik = slownik
+        self.reset()
 
-# --- Szyfrowanie słowa ---
-def szyfrowanie(losowe_slowo):
-    return ['_'] * len(losowe_slowo)
+    def reset(self):
+        self.slowo = losowanie_slowa(self.slownik)
+        self.zaszyfrowane = ["_"] * len(self.slowo)
+        self.zycia = 6
+        self.przyciski = self.stworz_alfabet()
 
-# --- Odszyfrowanie litery ---
-def odszyfrowanie_litery(losowe_slowo, zaszyfrowane, litera):
-    for i in range(len(losowe_slowo)):
-        if losowe_slowo[i] == litera:
-            zaszyfrowane[i] = litera
+    def stworz_alfabet(self):
+        litery = list("ABCDEFGHIJKLMNOPQRSTUWYZ")
+        przyciski = []
+        start_x, start_y, odstep = 100, 400, 50
+        wiersz = kolumna = 0
+        for litera in litery:
+            rect = pygame.Rect(start_x + kolumna * odstep, start_y + wiersz * odstep, 45, 45)
+            przyciski.append(LetterButton(litera, rect))
+            kolumna += 1
+            if kolumna > 11:
+                kolumna, wiersz = 0, wiersz + 1
+        return przyciski
 
-# --- Główna pętla gry ---
+    def check_letter(self, pos):
+        for button in self.przyciski:
+            if button.check_click(pos):
+                button.aktywna = False
+                if button.litera in self.slowo:
+                    for i, l in enumerate(self.slowo):
+                        if l == button.litera:
+                            self.zaszyfrowane[i] = l
+                else:
+                    self.zycia -= 1
+
+    def draw_word(self):
+        tekst = " ".join(self.zaszyfrowane)
+        render = FONT.render(tekst, True, BLACK)
+        rect = render.get_rect(topleft=(50, 220))
+        tlo = pygame.Surface(rect.inflate(20, 10).size, pygame.SRCALPHA)
+        tlo.fill((255, 255, 255, 180))
+        screen.blit(tlo, rect.inflate(20, 10))
+        screen.blit(render, rect)
+
+    def draw_buttons(self):
+        for button in self.przyciski:
+            button.draw(screen)
+
+
+# --- Pętla główna ---
 def gra():
-    slowo = losowanie_slowa()
-    zaszyfrowane = szyfrowanie(slowo)
-    zycia = 6
-    przyciski = stworz_alfabet()
+    slownik = load_words()
+    game = HangmanGame(slownik)
+
+    # Przyciski UI
+    restart_btn = UIbutton("Restart", 20, 20, 140, 50, LIGHT_GRAY, WHITE, action=game.reset)
+    exit_btn = UIbutton("Exit", 640, 20, 140, 50, RED, (255, 100, 100), action=lambda: sys.exit())
 
     running = True
     while running:
         screen.blit(BACKGROUND, (0, 0))
 
-        play_again_btn = draw_button("Restart", 20, 20, 140, 50, LIGHT_GRAY, WHITE)
-        quit_btn = draw_button("Exit", 640, 20, 140, 50, RED, (255, 100, 100))
+        # Rysuj szubienicę i elementy
+        rysuj_wisielca(game.zycia)
+        game.draw_word()
+        game.draw_buttons()
 
-        # Rysowanie szubienicy
-        rysuj_wisielca(zycia)
+        # Rysuj przyciski
+        restart_btn.draw(screen)
+        exit_btn.draw(screen)
 
-        # Rysowanie zgadywanego słowa
-        tekst = " ".join(zaszyfrowane)
-        render_slowo = FONT.render(tekst, True, BLACK)
-        rect_slowo = render_slowo.get_rect(topleft=(50, 220))
-        tlo = pygame.Surface(rect_slowo.inflate(20, 10).size, pygame.SRCALPHA)
-        tlo.fill((255, 255, 255, 180)) 
-        screen.blit(tlo, rect_slowo.inflate(20, 10))
-        screen.blit(render_slowo, rect_slowo)
-
-        # Rysowanie liter
-        for litera, rect, aktywna in przyciski:
-            if aktywna:
-                pygame.draw.ellipse(screen, WHITE, rect)
-                pygame.draw.ellipse(screen, BLACK, rect, 2)
-                litera_render = SMALL_FONT.render(litera, True, BLACK)
-            else:
-                pygame.draw.ellipse(screen, GRAY, rect)
-                litera_render = SMALL_FONT.render(litera, True, WHITE)
-            screen.blit(litera_render, litera_render.get_rect(center=rect.center))
-
-        # Sprawdzenie warunków gry
-        if zycia <= 0:
-            msg = FONT.render(f"Przegrałeś! Słowo to: {slowo}", True, RED)
-            rect_msg = msg.get_rect(center=(WIDTH // 2, 540))
+        # Sprawdź warunki końca gry
+        msg, color = sprawdz_wynik(game.zycia, game.slowo, game.zaszyfrowane)
+        if msg:
+            render = FONT.render(msg, True, color)
+            rect_msg = render.get_rect(center=(WIDTH // 2, 540))
             pygame.draw.rect(screen, WHITE, rect_msg.inflate(40, 20), border_radius=15)
-            pygame.draw.rect(screen, RED, rect_msg.inflate(40, 20), 3, border_radius=15)
-            screen.blit(msg, rect_msg)
-
-        elif "_" not in zaszyfrowane:
-            msg = FONT.render("Brawo! Wygrałeś!", True, GREEN)
-            rect_msg = msg.get_rect(center=(WIDTH // 2, 540)) 
-            pygame.draw.rect(screen, WHITE, rect_msg.inflate(40, 20), border_radius=15)
-            pygame.draw.rect(screen, GREEN, rect_msg.inflate(40, 20), 3, border_radius=15)
-            screen.blit(msg, rect_msg)
-
+            pygame.draw.rect(screen, color, rect_msg.inflate(40, 20), 3, border_radius=15)
+            screen.blit(render, rect_msg)
 
         pygame.display.flip()
 
+        # Obsługa zdarzeń
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                position = pygame.mouse.get_pos()
-                if play_again_btn.collidepoint(position):
-                    return gra()
-                if quit_btn.collidepoint(position):
-                    pygame.quit()
-                    sys.exit()
-                for btn in przyciski:
-                    litera, rect, aktywna = btn
-                    if aktywna and rect.collidepoint(position):
-                        btn[2] = False
-                        if litera in slowo:
-                            odszyfrowanie_litery(slowo, zaszyfrowane, litera)
-                        else:
-                            zycia -= 1
+                pos = pygame.mouse.get_pos()
+                game.check_letter(pos)
+                restart_btn.check_click(pos)
+                exit_btn.check_click(pos)
 
         clock.tick(30)
+
+    pygame.quit()
+
 
 # --- Start ---
 if __name__ == "__main__":
