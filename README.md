@@ -95,12 +95,10 @@ Dzięki temu kod jest łatwiejszy do rozbudowy, np. o:
 
 ---
 
-## Zrzut ekranu (opcjonalnie)
-
-Możesz dodać zrzut ekranu np. `screenshot.png` i w README użyć:
+## Zrzut ekranu
 
 ```markdown
-![Widok gry](screenshot1.png)
-![Widok gry](screenshot2.png)
-![Widok gry](screenshot3.png)
+![Widok gry 1](screenshot1.png)
+![Widok gry 2](screenshot2.png)
+![Widok gry 3](screenshot3.png)
 ```
