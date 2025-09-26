@@ -100,5 +100,7 @@ Dzięki temu kod jest łatwiejszy do rozbudowy, np. o:
 Możesz dodać zrzut ekranu np. `screenshot.png` i w README użyć:
 
 ```markdown
-![Widok gry](screenshot.png)
+![Widok gry](screenshot1.png)
+![Widok gry](screenshot2.png)
+![Widok gry](screenshot3.png)
 ```
