@@ -21,6 +21,7 @@ Każdy błąd powoduje dorysowanie kolejnego elementu wisielca. Gra kończy się
   * `Hangman` – główna klasa zarządzająca logiką gry.
   * `Button` – klasa dla przycisków interfejsu.
   * `LetterButton` – klasa dla liter alfabetu.
+
 * Dodatkowo dostępna wersja gry działająca w konsoli (`wisielec.py`).
 
 ---
@@ -44,6 +45,7 @@ pip install pygame
 * `wisielec.py` – wersja gry działająca w konsoli.
 * `slownik.txt` – plik tekstowy z listą słów (po jednym w każdej linii).
 * `background.png` – obrazek tła wyświetlany w grze.
+* `screenshot1.png`, `screenshot2.png`, `screenshot3.png` – zrzuty ekranu gry.
 
 ---
 
@@ -71,6 +73,7 @@ Dzięki temu kod jest łatwiejszy do rozbudowy, np. o:
    ```bash
    python wisielec-pygame.py
    ```
+
 3. Aby uruchomić grę w konsoli:
 
    ```bash
@@ -95,9 +98,8 @@ Dzięki temu kod jest łatwiejszy do rozbudowy, np. o:
 
 ---
 
-## Zrzut ekranu
+## Zrzuty ekranu
 
-```markdown
 ![Widok gry 1](screenshot1.png)
 ![Widok gry 2](screenshot2.png)
 ![Widok gry 3](screenshot3.png)
